@@ -46385,6 +46385,7 @@ a.u-link.u-text-hover-color-var:hover {
 
 @media (max-width: 575px) {
   .u-header .u-menu-1 {
+    margin-top: 20px;
     margin-left: 79px;
   }
 }
