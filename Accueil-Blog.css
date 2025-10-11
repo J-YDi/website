@@ -3,7 +3,6 @@
 }
 
 .u-section-1 .u-blog-1 {
-  min-height: 355px;
   margin-bottom: 60px;
 }
 
@@ -11,6 +10,7 @@
   grid-auto-columns: calc(33.3333% - 6.66667px);
   grid-template-columns: repeat(3, calc(33.3333% - 6.66667px));
   --gap: 10px;
+  min-height: 355px;
 }
 
 .u-section-1 .u-container-layout-1 {
@@ -24,7 +24,7 @@
 
 .u-section-1 .u-btn-1 {
   background-image: none;
-  border-style: none none solid;
+  border-style: solid;
   margin-right: auto;
   margin-bottom: 0;
   margin-left: 0;
