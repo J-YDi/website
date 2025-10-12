@@ -28,8 +28,12 @@
 }
 
 @media (max-width: 575px) {
+  .u-section-1 .u-sheet-1 {
+    min-height: 1911px;
+  }
+
   .u-section-1 .u-text-1 {
-    margin-top: 528px;
-    margin-bottom: -670px;
+    width: auto;
+    margin: 8px 16px -150px -16px;
   }
 }
