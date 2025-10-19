@@ -46438,7 +46438,8 @@ a.u-link.u-text-hover-color-var:hover {
   }
 
   .u-footer .u-text-1 {
-    width: 340px;
+    width: auto;
+    margin-top: 0;
     margin-left: 0;
     margin-right: 0;
   }
