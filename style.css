@@ -216,6 +216,8 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 600; line-height: 1
 
 /* generic page hero (CV / blog) */
 .page-hero { position: relative; overflow: hidden; background: var(--grad-deep); color: #eaf6fb; padding: 84px 0 92px; text-align: center; }
+.page-hero--compact { padding: 54px 0 66px; }
+.section--flush { padding-top: 44px; }
 .page-hero::after { content:""; position:absolute; left:0; right:0; bottom:-1px; height:110px; background: radial-gradient(120% 120% at 50% 0, transparent 62%, var(--bg) 63%); }
 .page-hero .container { position: relative; z-index: 2; }
 .page-hero .eyebrow { color: var(--bloom); justify-content: center; }
