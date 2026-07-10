@@ -212,7 +212,6 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 600; line-height: 1
 .social svg { width: 22px; height: 22px; color: #fff; transition: color .2s var(--ease); }
 .social:hover svg { color: var(--ocean); }
 .social img { width: 24px; height: 24px; object-fit: contain; }
-.social--plain { background: #fff; }
 
 /* generic page hero (CV / blog) */
 .page-hero { position: relative; overflow: hidden; background: var(--grad-deep); color: #eaf6fb; padding: 84px 0 92px; text-align: center; }
