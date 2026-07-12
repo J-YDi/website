@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>L'analyse de Procuste — Jean-Yves Dias</title>
+  <meta name="description" content="L'analyse de Procuste : superposer, faire pivoter et redimensionner des configurations de données pour comparer leur structure. Résidus, corrélation de Procuste, GPA et code R (shapes, geomorph).">
+  <meta name="theme-color" content="#04263c">
+  <meta property="og:title" content="L'analyse de Procuste : superposer des formes pour mieux les comparer">
+  <meta property="og:type" content="article">
+  <link rel="icon" href="../images/Designer1.png">
+  <script>document.documentElement.className = 'js';</script>
+  <link rel="stylesheet" href="../style.css">
+  <script src="../script.js" defer></script>
+  <style>
+    /* Mise en forme spécifique aux articles riches (listes, code, formules) */
+    .article__body h2 { font-size: 1.55rem; margin: 40px 0 16px; }
+    .article__body h3 { font-size: 1.2rem; margin: 30px 0 12px; }
+    .article__body ol,
+    .article__body ul { margin: 0 0 22px; padding-left: 1.5em; }
+    .article__body ol { list-style: decimal; }
+    .article__body ul { list-style: disc; }
+    .article__body li { margin-bottom: 10px; padding-left: 4px; }
+    .article__body li::marker { color: var(--teal); font-weight: 700; }
+    .article__lead { font-size: 1.2rem; color: var(--ink); font-weight: 500; margin-bottom: 26px; }
+    .article__body code {
+      font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+      background: var(--surface-2); color: var(--ocean);
+      padding: 2px 7px; border-radius: 6px; font-size: .88em;
+    }
+    .article__body pre {
+      background: var(--deep); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px; padding: 20px 22px; overflow-x: auto;
+      margin: 0 0 26px; box-shadow: var(--shadow-sm);
+    }
+    .article__body pre code {
+      background: none; color: #d7ecf7; padding: 0; font-size: .9rem; line-height: 1.65;
+      display: block; white-space: pre;
+    }
+    .article__body pre .cm { color: #6f9db3; font-style: italic; }  /* commentaire */
+    .article__body .formula {
+      display: inline-block; font-style: italic;
+      background: var(--surface-2); padding: 1px 8px; border-radius: 6px;
+    }
+    .def-list { list-style: none !important; padding-left: 0 !important; margin-top: 6px; }
+    .def-list li { padding: 11px 0; margin: 0; border-bottom: 1px dashed var(--line); }
+    .def-list li:last-child { border-bottom: 0; }
+    .def-list code { font-weight: 600; }
+    .article__note {
+      border-left: 4px solid var(--teal); background: var(--surface-2);
+      border-radius: 0 12px 12px 0; padding: 14px 20px; margin: 0 0 24px; color: var(--ink-2);
+    }
+  </style>
+</head>
+<body data-lang="fr">
+  <!-- ===== Header ===== -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="nav" aria-label="Navigation principale">
+        <a class="brand" href="../index.html">
+          <span class="brand__mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 12 12 4.8M12 12 18.2 8.4M12 12 18.2 15.6M12 12 12 19.2M12 12 5.8 15.6M12 12 5.8 8.4M12 4.8 18.2 8.4M5.8 15.6 12 19.2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><g fill="currentColor"><circle cx="12" cy="12" r="2"/><circle cx="12" cy="4.8" r="1.5"/><circle cx="18.2" cy="8.4" r="1.5"/><circle cx="18.2" cy="15.6" r="1.5"/><circle cx="12" cy="19.2" r="1.5"/><circle cx="5.8" cy="15.6" r="1.5"/><circle cx="5.8" cy="8.4" r="1.5"/></g></svg>
+          </span>
+          <span>Jean-Yves Dias<small>Écologie marine et numérique</small></span>
+        </a>
+        <ul class="nav__links">
+          <li><a href="../index.html">Accueil</a></li>
+          <li><a href="../CV.html">CV</a></li>
+          <li><a href="../Accueil-Blog.html" class="is-active">Blog</a></li>
+        </ul>
+        <button class="nav__toggle" aria-label="Ouvrir le menu" aria-expanded="false"><span></span></button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===== Article ===== -->
+  <section class="section">
+    <div class="container">
+      <div class="article">
+        <a class="back-link" href="../Accueil-Blog.html">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M19 12H5M11 18l-6-6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Retour au blog
+        </a>
+        <h1 class="section-title" style="font-size:clamp(1.9rem,4vw,2.6rem)">L'analyse de Procuste</h1>
+        <div class="article__meta">
+          <span class="tag">Statistiques</span>
+          <span class="tag">Analyse de formes</span>
+          <span class="tag">R codes</span>
+          <span>12 juil. 2026</span>
+        </div>
+        <div class="article__body">
+          <p class="article__lead">Superposer des formes pour mieux les comparer.</p>
+
+          <p>Le nom Procuste vient de la mythologie grecque&nbsp;: Procuste était un brigand qui offrait l'hospitalité aux voyageurs… avant de les forcer à entrer exactement dans son lit&nbsp;: il étirait les trop petits et amputait les trop grands. Le nom est resté pour désigner une méthode statistique dont l'esprit est le même, en beaucoup moins violent, soyons rassurés&nbsp;: le but est d'ajuster une configuration de données à une autre pour pouvoir les comparer.</p>
+
+          <p>L'idée de fond est simple. Imaginez deux cartes représentant les mêmes villes, dessinées par deux personnes différentes. L'une a tourné sa feuille, l'autre a utilisé une échelle plus grande, une troisième a décalé tout le dessin vers la droite. Ces trois cartes peuvent décrire exactement la même réalité géographique mais elles diffèrent par leur orientation, leur taille et leur position. L'analyse de Procuste consiste à faire pivoter, redimensionner et recentrer une carte sur l'autre pour révéler ce qu'elles ont en commun, et où elles divergent pour de bon.</p>
+
+          <h2>Le problème qu'elle résout</h2>
+          <p>Si l'analyse de Procuste est particulièrement adaptée pour étudier des variations de formes, en pratique, on l'utilise souvent pour comparer deux ordinations. Il peut s'agir des résultats d'une ACP, d'une PCoA, ou de toute méthode qui projette des individus (ou des variables) dans un espace de quelques axes. Le souci, c'est que ces axes sont arbitraires&nbsp;: une ACP peut décrire la même structure qu'une autre tout en étant tournée, inversée ou à une autre échelle. Comparer les coordonnées telles quelles n'aurait aucun sens.</p>
+          <p>L'analyse de Procuste retire donc tout ce qui relève de ces différences de configuration pour ne garder que la structure interne des données. Concrètement, elle élimine trois choses&nbsp;:</p>
+          <ol>
+            <li><strong>La position (translation).</strong> On recentre chaque nuage de points sur son centre de gravité, à l'origine. Ce centrage n'est pas un détail&nbsp;: c'est lui qui isole proprement l'effet de position et garantit que la comparaison qui suit n'est pas faussée par un simple décalage. Une fois cette étape faite, il ne reste plus qu'à régler la taille et l'orientation.</li>
+            <li><strong>La taille (échelle).</strong> On normalise chaque configuration pour qu'elles aient la même «&nbsp;ampleur&nbsp;» globale, de façon à ne pas confondre une vraie différence de forme avec un simple effet d'agrandissement.</li>
+            <li><strong>L'orientation (rotation, et éventuellement réflexion).</strong> C'est l'étape clé&nbsp;: on cherche la rotation qui fait coïncider au mieux les deux nuages, en minimisant l'écart qui reste entre eux.</li>
+          </ol>
+          <p>L'objectif tout au long de ce processus est de rendre les écarts entre les deux configurations aussi petits que possible, mesurés par la somme des carrés des distances (ce que les mathématiciens appellent la <em>norme de Frobenius</em>). Ce qui résiste à cet alignement — ce qu'on ne peut pas faire disparaître en tournant ou en redimensionnant — représente une vraie différence de forme.</p>
+
+          <h2>Ce qui reste&nbsp;: les résidus, et à quel point ça «&nbsp;colle&nbsp;»</h2>
+          <p>Une fois les deux configurations superposées au mieux, les écarts qui subsistent s'appellent les <strong>résidus</strong>. Ils sont précieux, car ils ne contiennent plus de «&nbsp;bruit&nbsp;» lié à la position, à la taille ou à l'orientation&nbsp;: ce sont des différences de forme à l'état pur.</p>
+          <p>On résume la qualité de l'alignement par une statistique notée <span class="formula">m²</span>&nbsp;: plus elle est petite, plus les deux configurations se ressemblent une fois superposées. On en dérive souvent une <strong>corrélation de Procuste</strong>, <span class="formula">R = √(1 − m²)</span>, qui se lit comme un coefficient classique&nbsp;: proche de 1, les deux structures sont presque identiques&nbsp;; proche de 0, elles n'ont pas grand-chose à voir.</p>
+          <p class="article__note">Un détail&nbsp;: <span class="formula">m²</span> n'est pas symétrique. Aligner A sur B ne donne pas tout à fait le même résultat qu'aligner B sur A. Selon l'usage, on choisit donc une version symétrique ou on précise dans quel sens on compare.</p>
+
+          <h2>Est-ce que la ressemblance est réelle, ou due au hasard&nbsp;?</h2>
+          <p>Obtenir une bonne corrélation ne suffit pas&nbsp;: encore faut-il savoir si elle est significative. Comme on n'a pas de formule simple pour cela, on procède par <strong>permutation</strong>, ou via modèle nul. On mélange au hasard les lignes d'une des configurations, on recalcule <span class="formula">m²</span>, et on répète l'opération des centaines ou milliers de fois. On obtient ainsi une distribution de ce que donnerait le hasard pur. Si notre <span class="formula">m²</span> réel est nettement meilleur que cette distribution, on peut conclure que la concordance observée n'est pas un accident.</p>
+          <p>C'est exactement ce que teste l'hypothèse nulle de la méthode&nbsp;: <em>le degré de concordance entre deux configurations n'est pas plus grand que ce qu'on attendrait d'associations purement aléatoires</em>. Rejeter cette hypothèse, c'est affirmer que les deux jeux de données décrivent bien une structure commune.</p>
+
+          <h2>Quand on a plus de deux configurations&nbsp;: la GPA</h2>
+          <p>Tout ce qui précède compare deux configurations. Mais que faire quand on en a trois, quatre, dix&nbsp;? On utilise alors l'<strong>analyse généralisée de Procuste (GPA)</strong>, introduite par John Gower en 1975.</p>
+          <p>L'idée est élégante&nbsp;: plutôt que de prendre une configuration comme référence (ce qui serait arbitraire), on les aligne toutes sur une <strong>forme consensus</strong>, une sorte de moyenne de toutes les configurations. Le calcul est itératif et se fait en boucle&nbsp;:</p>
+          <ol>
+            <li>on part d'une référence provisoire (souvent la moyenne des configurations)&nbsp;;</li>
+            <li>on aligne chaque configuration sur cette référence par une analyse de Procuste ordinaire&nbsp;;</li>
+            <li>on recalcule le consensus à partir de ces configurations réalignées&nbsp;;</li>
+            <li>on recommence, le nouveau consensus servant de référence&nbsp;;</li>
+            <li>on s'arrête quand le consensus ne bouge presque plus d'une étape à l'autre.</li>
+          </ol>
+          <p>En pratique, l'algorithme converge vite et de façon stable. L'avantage, c'est qu'aucune configuration n'est privilégiée&nbsp;: le consensus émerge de l'ensemble, sans biais. On enchaîne d'ailleurs souvent la GPA avec une ACP sur les configurations alignées, pour explorer comment elles se répartissent autour du consensus. Cette analyse permet de définir quelle configuration est la plus éloignée du consensus mais également de comparer la proximité entre configurations deux à deux, de la même façon qu'une ACP classique sur les individus.</p>
+
+          <h2>La partie historique</h2>
+          <p>Pour les curieux, l'analyse de Procuste a une belle assise théorique, formalisée dans les années 1980 par David Kendall. Son intuition&nbsp;: si l'on décide qu'une forme est ce qui reste une fois qu'on a retiré la position, la taille et l'orientation, alors chaque forme possible devient un point dans un espace abstrait — l'<strong>espace des formes de Kendall</strong>.</p>
+          <p>Cet espace a une dimension précise. Pour <em>k</em> points en deux dimensions, on part de <span class="formula">2k</span> coordonnées, dont on retire 2 paramètres de translation, 1 d'échelle et 1 de rotation, ce qui laisse <span class="formula">2k − 4</span> dimensions de «&nbsp;forme pure&nbsp;». La distance entre deux points de cet espace mesure alors directement leur différence de forme.</p>
+          <p>On en distingue plusieurs variantes, qui ont toutes l'avantage d'être <strong>bornées</strong>, ce qui les rend faciles à interpréter, un peu comme un pourcentage. Toutes valent 0 pour deux formes identiques et augmentent à mesure que les formes s'éloignent&nbsp;:</p>
+          <ul>
+            <li>La <strong>distance partielle de Procuste</strong> fixe la taille (les formes sont déjà normalisées) et ne joue que sur la rotation. Elle varie de 0 à <span class="formula">√2 (≈ 1,41)</span>.</li>
+            <li>La <strong>distance complète de Procuste</strong> optimise aussi l'échelle, et capture donc des différences de forme totalement indépendantes de la taille. Elle varie de 0 à 1.</li>
+            <li>La <strong>distance géodésique (ou riemannienne)</strong>, qui mesure la «&nbsp;vraie&nbsp;» longueur du chemin le plus court sur la sphère des formes de Kendall, s'exprime en angle et varie de <span class="formula">0 à π/2</span>. Pour de petites différences, les trois mesures coïncident pratiquement&nbsp;; elles ne se distinguent que pour des formes très éloignées.</li>
+          </ul>
+          <p>Ce cadre géométrique n'est pas qu'une élégance théorique&nbsp;: c'est lui qui permet de bâtir de véritables tests statistiques sur les formes, comme la <strong>Procrustes ANOVA</strong>, qui décompose la variabilité totale en parts attribuables aux groupes, aux individus ou à l'erreur de mesure, ou encore le <strong>test F de Goodall</strong> qui compare la variation entre groupes à celle au sein des groupes.</p>
+
+          <h2>Le code R</h2>
+          <p>Pour réaliser l'analyse de GPA il est nécessaire d'installer les packages <code>shapes</code> et <code>geomorph</code>. On utilise la fonction&nbsp;:</p>
+          <pre><code>procGPA(arr, reflect = TRUE, scale = TRUE, distances = TRUE, pcaoutput = TRUE)</code></pre>
+          <p>Les arguments sont les suivants&nbsp;:</p>
+          <ul class="def-list">
+            <li><code>arr</code> — le tableau (array) contenant les configurations à aligner.</li>
+            <li><code>reflect</code> — autoriser la réflexion en plus de la rotation.</li>
+            <li><code>scale</code> — normaliser la taille de chaque configuration.</li>
+            <li><code>distances</code> — calculer les distances de forme.</li>
+            <li><code>pcaoutput</code> — réaliser l'ACP sur les configurations alignées.</li>
+          </ul>
+          <p>En sortie on récupère&nbsp;:</p>
+          <ul class="def-list">
+            <li><code>k</code> — nombre de variables.</li>
+            <li><code>m</code> — nombre de dimensions de l'ACP.</li>
+            <li><code>n</code> — nombre de configurations.</li>
+            <li><code>rotated</code> — les <em>n</em> configurations après alignement.</li>
+            <li><code>mshape</code> — la forme consensus.</li>
+            <li><code>tan</code> — les coordonnées tangentes, c'est-à-dire les résidus de forme de chaque configuration par rapport au consensus projeté dans l'espace linéarisé&nbsp;; ce sont les coordonnées utilisées par l'ACP de la GPA.</li>
+            <li><code>pcar</code> — vecteurs propres, les principales variations de forme de la covariance des coordonnées tangentes.</li>
+            <li><code>pcasd</code> — écart-type de chaque composante.</li>
+            <li><code>percent</code> — pourcentage de variabilité expliqué par chaque composante.</li>
+            <li><code>scores</code>, <code>rawscores</code>, <code>stdscores</code> — coordonnées des configurations dans les composantes de l'ACP de forme GPA.</li>
+            <li><code>size</code> — taille du centroïde de chaque configuration après normalisation.</li>
+            <li><code>rho</code> — distance de forme de Kendall&nbsp;: indicateur d'écart au consensus.</li>
+            <li><code>rmsrho</code> — moyenne quadratique des <em>rho</em>, mesure l'écart au consensus.</li>
+            <li><code>rmsd1</code> — distance complète de Procuste, moyenne de la distance de Procuste.</li>
+            <li><code>GSS</code> — somme des carrés de Procuste minimisée&nbsp;: valeur résiduelle finale, variation totale de forme.</li>
+          </ul>
+
+          <p>La fonction <code>procD.lm</code>, associée à <code>anova()</code>, permet d'effectuer une ANOVA afin de déterminer les facteurs qui influencent significativement les différences de forme&nbsp;:</p>
+          <pre><code>fit &lt;- procD.lm(coords ~ niveau + transfo, data = gdf, iter = 9999)
+anova(fit)</code></pre>
+          <p>On peut tester l'effet d'un facteur avec deux modèles de régression de Procuste afin de déterminer si un facteur a un effet significatif, deux à deux. Il s'agit d'une certaine façon d'un test post-hoc après l'ANOVA&nbsp;:</p>
+          <pre><code>fit_full &lt;- procD.lm(coords ~ niveau + transfo, data = gdf, iter = 9999)
+fit_null &lt;- procD.lm(coords ~ niveau,           data = gdf, iter = 9999)
+<span class="cm"># Comparaison deux à deux (post-hoc)</span>
+pw &lt;- pairwise(fit_full, fit.null = fit_null, groups = gdf$transfo)</code></pre>
+
+          <p class="article__sign">— Jean-Yves Dias</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Footer ===== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <div>
+          <div class="footer-brand">
+            <span class="brand__mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 12 12 4.8M12 12 18.2 8.4M12 12 18.2 15.6M12 12 12 19.2M12 12 5.8 15.6M12 12 5.8 8.4M12 4.8 18.2 8.4M5.8 15.6 12 19.2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><g fill="currentColor"><circle cx="12" cy="12" r="2"/><circle cx="12" cy="4.8" r="1.5"/><circle cx="18.2" cy="8.4" r="1.5"/><circle cx="18.2" cy="15.6" r="1.5"/><circle cx="12" cy="19.2" r="1.5"/><circle cx="5.8" cy="15.6" r="1.5"/><circle cx="5.8" cy="8.4" r="1.5"/></g></svg>
+            </span>
+            <span>Jean-Yves Dias<small>Doctorant · Laboratoire BOREA — Sorbonne Université</small></span>
+          </div>
+        </div>
+        <nav class="footer-nav" aria-label="Pied de page">
+          <a href="../index.html">Accueil</a>
+          <a href="../CV.html">CV</a>
+          <a href="../Accueil-Blog.html">Blog</a>
+          <a href="mailto:jean-yves.dias@sorbonne-universite.fr">Contact</a>
+        </nav>
+        <div class="footer-socials">
+          <a class="social" href="https://www.linkedin.com/in/jean-yves-dias/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm6 0h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05C20.6 8.65 22 10.3 22 13.4V21h-4v-6.9c0-1.65-.03-3.77-2.3-3.77-2.3 0-2.65 1.8-2.65 3.65V21H9V9Z"/></svg></a>
+          <a class="social" href="https://github.com/J-YDi" target="_blank" rel="noopener" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05A9.3 9.3 0 0 1 12 6.84c.85 0 1.71.12 2.51.34 1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg></a>
+          <a class="social" href="mailto:jean-yves.dias@sorbonne-universite.fr" aria-label="E-mail"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a class="social" href="https://orcid.org/0009-0003-6635-4100" target="_blank" rel="noopener" aria-label="ORCID"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zM7.369 4.378c.525 0 .947.431.947.947s-.422.947-.947.947a.95.95 0 0 1-.947-.947c0-.525.422-.947.947-.947zm-.722 3.038h1.444v10.041H6.647V7.416zm3.562 0h3.9c3.712 0 5.344 2.653 5.344 5.025 0 2.578-2.016 5.025-5.325 5.025h-3.919V7.416zm1.444 1.303v7.444h2.297c3.272 0 4.022-2.484 4.022-3.722 0-2.016-1.284-3.722-4.097-3.722h-2.222z"/></svg></a>
+          <a class="social social--logo" href="https://www.researchgate.net/profile/Jean-Yves-Dias?ev=hdr_xprf" target="_blank" rel="noopener" aria-label="ResearchGate"><img src="../images/researchgate-rma9jjrhn7bt7wjizf5h5.png" alt="ResearchGate"></a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© Jean-Yves Dias 2025 — Tous droits réservés.</p>
+        <p><a href="https://orcid.org/0009-0003-6635-4100" target="_blank" rel="noopener">ORCID 0009-0003-6635-4100</a></p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
