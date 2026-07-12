@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>L'analyse de Procuste — Jean-Yves Dias</title>
-  <meta name="description" content="L'analyse de Procuste : superposer, faire pivoter et redimensionner des configurations de données pour comparer leur structure. Résidus, corrélation de Procuste, GPA et code R (shapes, geomorph).">
+  <title>L'analyse de Procrustes — Jean-Yves Dias</title>
+  <meta name="description" content="L'analyse de Procrustes : superposer, faire pivoter et redimensionner des configurations de données pour comparer leur structure. Résidus, corrélation de Procrustes, GPA et code R (shapes, geomorph).">
   <meta name="theme-color" content="#04263c">
-  <meta property="og:title" content="L'analyse de Procuste : superposer des formes pour mieux les comparer">
+  <meta property="og:title" content="L'analyse de Procrustes : superposer des formes pour mieux les comparer">
   <meta property="og:type" content="article">
   <link rel="icon" href="../images/Designer1.png">
   <script>document.documentElement.className = 'js';</script>
@@ -81,7 +81,7 @@
           <svg viewBox="0 0 24 24" fill="none"><path d="M19 12H5M11 18l-6-6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Retour au blog
         </a>
-        <h1 class="section-title" style="font-size:clamp(1.9rem,4vw,2.6rem)">L'analyse de Procuste</h1>
+        <h1 class="section-title" style="font-size:clamp(1.9rem,4vw,2.6rem)">L'analyse de Procrustes</h1>
         <div class="article__meta">
           <span class="tag">Statistiques</span>
           <span class="tag">Analyse de formes</span>
@@ -91,13 +91,13 @@
         <div class="article__body">
           <p class="article__lead">Superposer des formes pour mieux les comparer.</p>
 
-          <p>Le nom Procuste vient de la mythologie grecque&nbsp;: Procuste était un brigand qui offrait l'hospitalité aux voyageurs… avant de les forcer à entrer exactement dans son lit&nbsp;: il étirait les trop petits et amputait les trop grands. Le nom est resté pour désigner une méthode statistique dont l'esprit est le même, en beaucoup moins violent, soyons rassurés&nbsp;: le but est d'ajuster une configuration de données à une autre pour pouvoir les comparer.</p>
+          <p>Le nom Procrustes vient de la mythologie grecque&nbsp;: Procrustes était un brigand qui offrait l'hospitalité aux voyageurs… avant de les forcer à entrer exactement dans son lit&nbsp;: il étirait les trop petits et amputait les trop grands. Le nom est resté pour désigner une méthode statistique dont l'esprit est le même, en beaucoup moins violent, soyons rassurés&nbsp;: le but est d'ajuster une configuration de données à une autre pour pouvoir les comparer.</p>
 
-          <p>L'idée de fond est simple. Imaginez deux cartes représentant les mêmes villes, dessinées par deux personnes différentes. L'une a tourné sa feuille, l'autre a utilisé une échelle plus grande, une troisième a décalé tout le dessin vers la droite. Ces trois cartes peuvent décrire exactement la même réalité géographique mais elles diffèrent par leur orientation, leur taille et leur position. L'analyse de Procuste consiste à faire pivoter, redimensionner et recentrer une carte sur l'autre pour révéler ce qu'elles ont en commun, et où elles divergent pour de bon.</p>
+          <p>L'idée de fond est simple. Imaginez deux cartes représentant les mêmes villes, dessinées par deux personnes différentes. L'une a tourné sa feuille, l'autre a utilisé une échelle plus grande, une troisième a décalé tout le dessin vers la droite. Ces trois cartes peuvent décrire exactement la même réalité géographique mais elles diffèrent par leur orientation, leur taille et leur position. L'analyse de Procrustes consiste à faire pivoter, redimensionner et recentrer une carte sur l'autre pour révéler ce qu'elles ont en commun, et où elles divergent pour de bon.</p>
 
           <h2>Le problème qu'elle résout</h2>
-          <p>Si l'analyse de Procuste est particulièrement adaptée pour étudier des variations de formes, en pratique, on l'utilise souvent pour comparer deux ordinations. Il peut s'agir des résultats d'une ACP, d'une PCoA, ou de toute méthode qui projette des individus (ou des variables) dans un espace de quelques axes. Le souci, c'est que ces axes sont arbitraires&nbsp;: une ACP peut décrire la même structure qu'une autre tout en étant tournée, inversée ou à une autre échelle. Comparer les coordonnées telles quelles n'aurait aucun sens.</p>
-          <p>L'analyse de Procuste retire donc tout ce qui relève de ces différences de configuration pour ne garder que la structure interne des données. Concrètement, elle élimine trois choses&nbsp;:</p>
+          <p>Si l'analyse de Procrustes est particulièrement adaptée pour étudier des variations de formes, en pratique, on l'utilise souvent pour comparer deux ordinations. Il peut s'agir des résultats d'une ACP, d'une PCoA, ou de toute méthode qui projette des individus (ou des variables) dans un espace de quelques axes. Le souci, c'est que ces axes sont arbitraires&nbsp;: une ACP peut décrire la même structure qu'une autre tout en étant tournée, inversée ou à une autre échelle. Comparer les coordonnées telles quelles n'aurait aucun sens.</p>
+          <p>L'analyse de Procrustes retire donc tout ce qui relève de ces différences de configuration pour ne garder que la structure interne des données. Concrètement, elle élimine trois choses&nbsp;:</p>
           <ol>
             <li><strong>La position (translation).</strong> On recentre chaque nuage de points sur son centre de gravité, à l'origine. Ce centrage n'est pas un détail&nbsp;: c'est lui qui isole proprement l'effet de position et garantit que la comparaison qui suit n'est pas faussée par un simple décalage. Une fois cette étape faite, il ne reste plus qu'à régler la taille et l'orientation.</li>
             <li><strong>La taille (échelle).</strong> On normalise chaque configuration pour qu'elles aient la même «&nbsp;ampleur&nbsp;» globale, de façon à ne pas confondre une vraie différence de forme avec un simple effet d'agrandissement.</li>
@@ -107,7 +107,7 @@
 
           <h2>Ce qui reste&nbsp;: les résidus, et à quel point ça «&nbsp;colle&nbsp;»</h2>
           <p>Une fois les deux configurations superposées au mieux, les écarts qui subsistent s'appellent les <strong>résidus</strong>. Ils sont précieux, car ils ne contiennent plus de «&nbsp;bruit&nbsp;» lié à la position, à la taille ou à l'orientation&nbsp;: ce sont des différences de forme à l'état pur.</p>
-          <p>On résume la qualité de l'alignement par une statistique notée <span class="formula">m²</span>&nbsp;: plus elle est petite, plus les deux configurations se ressemblent une fois superposées. On en dérive souvent une <strong>corrélation de Procuste</strong>, <span class="formula">R = √(1 − m²)</span>, qui se lit comme un coefficient classique&nbsp;: proche de 1, les deux structures sont presque identiques&nbsp;; proche de 0, elles n'ont pas grand-chose à voir.</p>
+          <p>On résume la qualité de l'alignement par une statistique notée <span class="formula">m²</span>&nbsp;: plus elle est petite, plus les deux configurations se ressemblent une fois superposées. On en dérive souvent une <strong>corrélation de Procrustes</strong>, <span class="formula">R = √(1 − m²)</span>, qui se lit comme un coefficient classique&nbsp;: proche de 1, les deux structures sont presque identiques&nbsp;; proche de 0, elles n'ont pas grand-chose à voir.</p>
           <p class="article__note">Un détail&nbsp;: <span class="formula">m²</span> n'est pas symétrique. Aligner A sur B ne donne pas tout à fait le même résultat qu'aligner B sur A. Selon l'usage, on choisit donc une version symétrique ou on précise dans quel sens on compare.</p>
 
           <h2>Est-ce que la ressemblance est réelle, ou due au hasard&nbsp;?</h2>
@@ -115,11 +115,11 @@
           <p>C'est exactement ce que teste l'hypothèse nulle de la méthode&nbsp;: <em>le degré de concordance entre deux configurations n'est pas plus grand que ce qu'on attendrait d'associations purement aléatoires</em>. Rejeter cette hypothèse, c'est affirmer que les deux jeux de données décrivent bien une structure commune.</p>
 
           <h2>Quand on a plus de deux configurations&nbsp;: la GPA</h2>
-          <p>Tout ce qui précède compare deux configurations. Mais que faire quand on en a trois, quatre, dix&nbsp;? On utilise alors l'<strong>analyse généralisée de Procuste (GPA)</strong>, introduite par John Gower en 1975.</p>
+          <p>Tout ce qui précède compare deux configurations. Mais que faire quand on en a trois, quatre, dix&nbsp;? On utilise alors l'<strong>analyse généralisée de Procrustes (GPA)</strong>, introduite par John Gower en 1975.</p>
           <p>L'idée est élégante&nbsp;: plutôt que de prendre une configuration comme référence (ce qui serait arbitraire), on les aligne toutes sur une <strong>forme consensus</strong>, une sorte de moyenne de toutes les configurations. Le calcul est itératif et se fait en boucle&nbsp;:</p>
           <ol>
             <li>on part d'une référence provisoire (souvent la moyenne des configurations)&nbsp;;</li>
-            <li>on aligne chaque configuration sur cette référence par une analyse de Procuste ordinaire&nbsp;;</li>
+            <li>on aligne chaque configuration sur cette référence par une analyse de Procrustes ordinaire&nbsp;;</li>
             <li>on recalcule le consensus à partir de ces configurations réalignées&nbsp;;</li>
             <li>on recommence, le nouveau consensus servant de référence&nbsp;;</li>
             <li>on s'arrête quand le consensus ne bouge presque plus d'une étape à l'autre.</li>
@@ -127,12 +127,12 @@
           <p>En pratique, l'algorithme converge vite et de façon stable. L'avantage, c'est qu'aucune configuration n'est privilégiée&nbsp;: le consensus émerge de l'ensemble, sans biais. On enchaîne d'ailleurs souvent la GPA avec une ACP sur les configurations alignées, pour explorer comment elles se répartissent autour du consensus. Cette analyse permet de définir quelle configuration est la plus éloignée du consensus mais également de comparer la proximité entre configurations deux à deux, de la même façon qu'une ACP classique sur les individus.</p>
 
           <h2>La partie historique</h2>
-          <p>Pour les curieux, l'analyse de Procuste a une belle assise théorique, formalisée dans les années 1980 par David Kendall. Son intuition&nbsp;: si l'on décide qu'une forme est ce qui reste une fois qu'on a retiré la position, la taille et l'orientation, alors chaque forme possible devient un point dans un espace abstrait — l'<strong>espace des formes de Kendall</strong>.</p>
+          <p>Pour les curieux, l'analyse de Procrustes a une belle assise théorique, formalisée dans les années 1980 par David Kendall. Son intuition&nbsp;: si l'on décide qu'une forme est ce qui reste une fois qu'on a retiré la position, la taille et l'orientation, alors chaque forme possible devient un point dans un espace abstrait — l'<strong>espace des formes de Kendall</strong>.</p>
           <p>Cet espace a une dimension précise. Pour <em>k</em> points en deux dimensions, on part de <span class="formula">2k</span> coordonnées, dont on retire 2 paramètres de translation, 1 d'échelle et 1 de rotation, ce qui laisse <span class="formula">2k − 4</span> dimensions de «&nbsp;forme pure&nbsp;». La distance entre deux points de cet espace mesure alors directement leur différence de forme.</p>
           <p>On en distingue plusieurs variantes, qui ont toutes l'avantage d'être <strong>bornées</strong>, ce qui les rend faciles à interpréter, un peu comme un pourcentage. Toutes valent 0 pour deux formes identiques et augmentent à mesure que les formes s'éloignent&nbsp;:</p>
           <ul>
-            <li>La <strong>distance partielle de Procuste</strong> fixe la taille (les formes sont déjà normalisées) et ne joue que sur la rotation. Elle varie de 0 à <span class="formula">√2 (≈ 1,41)</span>.</li>
-            <li>La <strong>distance complète de Procuste</strong> optimise aussi l'échelle, et capture donc des différences de forme totalement indépendantes de la taille. Elle varie de 0 à 1.</li>
+            <li>La <strong>distance partielle de Procrustes</strong> fixe la taille (les formes sont déjà normalisées) et ne joue que sur la rotation. Elle varie de 0 à <span class="formula">√2 (≈ 1,41)</span>.</li>
+            <li>La <strong>distance complète de Procrustes</strong> optimise aussi l'échelle, et capture donc des différences de forme totalement indépendantes de la taille. Elle varie de 0 à 1.</li>
             <li>La <strong>distance géodésique (ou riemannienne)</strong>, qui mesure la «&nbsp;vraie&nbsp;» longueur du chemin le plus court sur la sphère des formes de Kendall, s'exprime en angle et varie de <span class="formula">0 à π/2</span>. Pour de petites différences, les trois mesures coïncident pratiquement&nbsp;; elles ne se distinguent que pour des formes très éloignées.</li>
           </ul>
           <p>Ce cadre géométrique n'est pas qu'une élégance théorique&nbsp;: c'est lui qui permet de bâtir de véritables tests statistiques sur les formes, comme la <strong>Procrustes ANOVA</strong>, qui décompose la variabilité totale en parts attribuables aux groupes, aux individus ou à l'erreur de mesure, ou encore le <strong>test F de Goodall</strong> qui compare la variation entre groupes à celle au sein des groupes.</p>
@@ -163,14 +163,14 @@
             <li><code>size</code> — taille du centroïde de chaque configuration après normalisation.</li>
             <li><code>rho</code> — distance de forme de Kendall&nbsp;: indicateur d'écart au consensus.</li>
             <li><code>rmsrho</code> — moyenne quadratique des <em>rho</em>, mesure l'écart au consensus.</li>
-            <li><code>rmsd1</code> — distance complète de Procuste, moyenne de la distance de Procuste.</li>
-            <li><code>GSS</code> — somme des carrés de Procuste minimisée&nbsp;: valeur résiduelle finale, variation totale de forme.</li>
+            <li><code>rmsd1</code> — distance complète de Procrustes, moyenne de la distance de Procrustes.</li>
+            <li><code>GSS</code> — somme des carrés de Procrustes minimisée&nbsp;: valeur résiduelle finale, variation totale de forme.</li>
           </ul>
 
           <p>La fonction <code>procD.lm</code>, associée à <code>anova()</code>, permet d'effectuer une ANOVA afin de déterminer les facteurs qui influencent significativement les différences de forme&nbsp;:</p>
           <pre><code>fit &lt;- procD.lm(coords ~ niveau + transfo, data = gdf, iter = 9999)
 anova(fit)</code></pre>
-          <p>On peut tester l'effet d'un facteur avec deux modèles de régression de Procuste afin de déterminer si un facteur a un effet significatif, deux à deux. Il s'agit d'une certaine façon d'un test post-hoc après l'ANOVA&nbsp;:</p>
+          <p>On peut tester l'effet d'un facteur avec deux modèles de régression de Procrustes afin de déterminer si un facteur a un effet significatif, deux à deux. Il s'agit d'une certaine façon d'un test post-hoc après l'ANOVA&nbsp;:</p>
           <pre><code>fit_full &lt;- procD.lm(coords ~ niveau + transfo, data = gdf, iter = 9999)
 fit_null &lt;- procD.lm(coords ~ niveau,           data = gdf, iter = 9999)
 <span class="cm"># Comparaison deux à deux (post-hoc)</span>
